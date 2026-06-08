@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Arpatech Virtual Assistant</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        :root {
+            color-scheme: light;
+            --bg: #eef1e5;
+            --surface: #ffffff;
+            --surface-strong: #f5f6ef;
+            --text: #1f2f21;
+            --muted: #6a7b66;
+            --accent: #3b8d4d;
+            --accent-strong: #2f6d3a;
+            --border: #d3d7cc;
+            --error: #c0392b;
+        }
+        * {
+            box-sizing: border-box;
+        }
+        html, body {
+            margin: 0;
+            min-height: 100%;
+            background: linear-gradient(180deg, #f5f6ef 0%, #eef1e5 100%);
+            color: var(--text);
+            font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+        }
+        .container {
+            width: min(1120px, 100%);
+            display: grid;
+            gap: 24px;
+        }
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            box-shadow: 0 22px 60px rgba(35, 57, 41, 0.12);
+            overflow: hidden;
+        }
+        .header {
+            padding: 32px 32px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .title {
+            margin: 0;
+            font-size: clamp(2rem, 3vw, 2.8rem);
+            line-height: 1.05;
+            color: var(--accent-strong);
+        }
+        .subtitle {
+            margin: 14px 0 0;
+            max-width: 720px;
+            color: var(--muted);
+            font-size: 1rem;
+            line-height: 1.7;
+        }
+        .status-chip {
+            padding: 10px 18px;
+            border-radius: 999px;
+            background: rgba(59, 141, 77, 0.12);
+            color: var(--accent-strong);
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            white-space: nowrap;
+            border: 1px solid rgba(59, 141, 77, 0.14);
+        }
+        .chat-frame {
+            display: grid;
+            grid-template-rows: 1fr auto;
+            min-height: 560px;
+        }
+        .chat-window {
+            padding: 24px;
+            overflow-y: auto;
+            min-height: 420px;
+            max-height: 70vh;
+            background: #fbfcf6;
+            color: #0f2415;
+            border: 1px solid rgba(15, 36, 22, 0.12);
+            border-radius: 24px;
+        }
+        .message {
+            max-width: 76%;
+            margin-bottom: 18px;
+            padding: 18px 20px;
+            border-radius: 24px;
+            line-height: 1.65;
+            white-space: pre-wrap;
+            word-break: break-word;
+            box-shadow: inset 0 0 0 1px rgba(15, 36, 22, 0.06);
+        }
+        .message.user {
+            margin-left: auto;
+            background: #e9f9e9;
+            border-top-right-radius: 6px;
+            color: #0f2415;
+            border: 1px solid rgba(59, 141, 77, 0.14);
+        }
+        .message.bot {
+            margin-right: auto;
+            background: #ffffff;
+            border-top-left-radius: 6px;
+            color: #0f2415;
+            border: 1px solid rgba(31, 47, 33, 0.08);
+        }
+        .author {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.92rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            opacity: 0.82;
+        }
+        .input-panel {
+            padding: 22px 24px 24px;
+            border-top: 1px solid var(--border);
+            display: grid;
+            gap: 12px;
+            background: var(--surface-strong);
+        }
+        .form-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .input-field {
+            flex: 1 1 0;
+            min-width: 0;
+            padding: 16px 18px;
+            border-radius: 18px;
+            border: 1px solid var(--border);
+            background: #ffffff;
+            color: var(--text);
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .input-field::placeholder {
+            color: rgba(79, 96, 73, 0.55);
+        }
+        .input-field:focus {
+            border-color: rgba(59, 141, 77, 0.75);
+            box-shadow: 0 0 0 4px rgba(59, 141, 77, 0.12);
+        }
+        .action-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .button {
+            border: none;
+            border-radius: 999px;
+            padding: 14px 20px;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            cursor: pointer;
+            transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+        }
+        .button.primary {
+            background: linear-gradient(135deg, #63a861, #3b8d4d);
+            color: #ffffff;
+            box-shadow: 0 18px 32px rgba(59, 141, 77, 0.22);
+        }
+        .button.secondary {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text);
+        }
+        .button:active {
+            transform: translateY(1px);
+        }
+        .button:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+        .helper {
+            color: var(--muted);
+            font-size: 0.94rem;
+        }
+        .error-banner {
+            padding: 14px 18px;
+            border-radius: 16px;
+            background: rgba(197, 75, 75, 0.12);
+            border: 1px solid rgba(197, 75, 75, 0.2);
+            color: #ffe1e1;
+            display: none;
+        }
+        .typing-bubble {
+            max-width: 76%;
+            margin-bottom: 18px;
+            padding: 18px 20px;
+            border-radius: 24px;
+            border-top-left-radius: 6px;
+            background: #ffffff;
+            border: 1px solid rgba(31, 47, 33, 0.08);
+            box-shadow: inset 0 0 0 1px rgba(15, 36, 22, 0.06);
+        }
+        .typing-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1.2rem;
+            font-weight: 900;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            opacity: 0.82;
+        }
+        .typing-dots {
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+            animation: typing 1.4s infinite;
+        }
+        @keyframes typing {
+            0%, 60%, 100% {
+                content: '';
+            }
+            30% {
+                content: '.';
+            }
+            60% {
+                content: '..';
+            }
+        }
+        .dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background-color: #3b8d4d;
+            border-radius: 50%;
+            margin: 0 3px;
+            animation: bounce 1.4s infinite;
+        }
+        .dot:nth-child(1) {
+            animation-delay: 0s;
+        }
+        .dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        @keyframes bounce {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            30% {
+                transform: translateY(-10px);
+                opacity: 0.7;
+            }
+        }
+        .markdown-content {
+            line-height: 1.65;
+        }
+        .markdown-content h1,
+        .markdown-content h2,
+        .markdown-content h3,
+        .markdown-content h4,
+        .markdown-content h5,
+        .markdown-content h6 {
+            margin: 16px 0 8px;
+            font-weight: 700;
+            color: var(--accent-strong);
+        }
+        .markdown-content h1 {
+            font-size: 1.5rem;
+        }
+        .markdown-content h2 {
+            font-size: 1.3rem;
+        }
+        .markdown-content h3 {
+            font-size: 1.1rem;
+        }
+        .markdown-content h4,
+        .markdown-content h5,
+        .markdown-content h6 {
+            font-size: 1rem;
+        }
+        .markdown-content p {
+            margin: 8px 0;
+            text-align: justify;
+        }
+        .markdown-content ul,
+        .markdown-content ol {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .markdown-content li {
+            margin: 6px 0;
+        }
+        .markdown-content strong {
+            font-weight: 700;
+            color: var(--accent-strong);
+        }
+        .markdown-content em {
+            font-style: italic;
+        }
+        .markdown-content code {
+            background: rgba(59, 141, 77, 0.12);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        .markdown-content pre {
+            background: rgba(15, 36, 22, 0.05);
+            padding: 12px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        .markdown-content blockquote {
+            border-left: 4px solid var(--accent);
+            padding-left: 12px;
+            margin: 10px 0;
+            opacity: 0.85;
+        }
+        .markdown-content a {
+            color: var(--accent);
+            text-decoration: none;
+            border-bottom: 1px solid rgba(59, 141, 77, 0.3);
+        }
+        .markdown-content a:hover {
+            border-bottom-color: var(--accent);
+        }
+        @media (max-width: 760px) {
+            .header {
+                padding: 24px 20px 18px;
+            }
+            .chat-window {
+                padding: 18px;
+            }
+            .input-panel {
+                padding: 18px 20px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <section class="card">
+            <div class="header">
+                <div>
+                    <h1 class="title">Arpatech Virtual Assistant</h1>
+                </div>
+            </div>
+            <div class="chat-frame">
+                <div id="chat" class="chat-window" aria-live="polite" aria-label="Chat history"></div>
+                <div class="input-panel">
+                    <div class="error-banner" id="errorBanner" role="alert"></div>
+                    <div class="form-row">
+                        <input id="input" class="input-field" type="text" autocomplete="off" placeholder="Type your message here..." />
+                        <button id="sendButton" class="button primary" type="button">Send</button>
+                    </div>
+                    <div class="action-group">
+                        <button id="clearButton" class="button secondary" type="button">Clear Chat</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        const chatEl = document.getElementById("chat");
+        const inputEl = document.getElementById("input");
+        const sendButton = document.getElementById("sendButton");
+        const clearButton = document.getElementById("clearButton");
+        const errorBanner = document.getElementById("errorBanner");
+
+        let currentTypingBubble = null;
+
+        function formatMessage(author, content, type) {
+            const wrapper = document.createElement("div");
+            wrapper.className = `message ${type}`;
+
+            const label = document.createElement("span");
+            label.className = "author";
+            label.textContent = author;
+
+            const body = document.createElement("div");
+            
+            if (type === "bot") {
+                body.className = "markdown-content";
+                body.innerHTML = parseMarkdownWithCitations(content);
+            } else {
+                body.textContent = content;
+            }
+
+            wrapper.appendChild(label);
+            wrapper.appendChild(body);
+            return wrapper;
+        }
+
+        function createTypingBubble() {
+
+            const textSpan = document.createElement("span");
+            textSpan.style.marginLeft = "8px";
+            textSpan.style.opacity = "0.8";
+            textSpan.textContent = "Agent is typing";
+        
+            const wrapper = document.createElement("div");
+            wrapper.className = "typing-bubble";
+
+            const label = document.createElement("span");
+            label.className = "typing-label";
+            label.textContent = "Agent";
+
+            const dotsContainer = document.createElement("div");
+            dotsContainer.style.display = "flex";
+            dotsContainer.style.alignItems = "center";
+
+            for (let i = 0; i < 3; i++) {
+                const dot = document.createElement("div");
+                dot.className = "dot";
+                dotsContainer.appendChild(dot);
+            }
+
+            const contentDiv = document.createElement("div");
+            contentDiv.style.display = "flex";
+            contentDiv.style.alignItems = "center";
+            contentDiv.style.gap = "4px";
+            contentDiv.appendChild(dotsContainer);
+            contentDiv.appendChild(textSpan);
+
+            wrapper.appendChild(label);
+            wrapper.appendChild(contentDiv);
+            return wrapper;
+        }
+
+        function showTypingBubble() {
+            if (currentTypingBubble) {
+                currentTypingBubble.remove();
+            }
+            currentTypingBubble = createTypingBubble();
+            chatEl.appendChild(currentTypingBubble);
+            scrollToBottom();
+        }
+
+        function removeTypingBubble() {
+            if (currentTypingBubble) {
+                currentTypingBubble.remove();
+                currentTypingBubble = null;
+            }
+        }
+
+        function parseMarkdownWithCitations(text) {
+            // Remove markdown citation definitions and numeric reference markers before rendering.
+            text = text.replace(/\[\s*\d+\s*\]:.*(?:\r?\n|$)/gm, "");
+            text = text.replace(/\[\s*\d+\s*\]/g, "");
+
+            let html = marked.parse(text);
+            // Remove link tags that only contain numeric citation text.
+            html = html.replace(/<a[^>]*>\s*\d+\s*<\/a>/g, "");
+            return html;
+        }
+
+        function showError(text) {
+            errorBanner.textContent = text;
+            errorBanner.style.display = "block";
+        }
+
+        function hideError() {
+            errorBanner.style.display = "none";
+        }
+
+        function setLoading(loading) {
+            sendButton.disabled = loading;
+            inputEl.disabled = loading;
+            clearButton.disabled = loading;
+            sendButton.textContent = loading ? "Sending…" : "Send";
+        }
+
+        function scrollToBottom() {
+            chatEl.scrollTop = chatEl.scrollHeight;
+        }
+
+        async function clearChat() {
+            hideError();
+            removeTypingBubble();
+            setLoading(true);
+
+            try {
+                const response = await fetch("/reset", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" }
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.error || "Failed to reset chat.");
+                }
+
+                chatEl.innerHTML = "";
+                const botMsg = formatMessage("Agent", "Welcome back! How can I help you today?", "bot");
+                chatEl.appendChild(botMsg);
+            } catch (error) {
+                showError(error.message);
+            } finally {
+                setLoading(false);
+                scrollToBottom();
+                inputEl.focus();
+            }
+        }
+
+        async function initializeAssistant() {
+            setLoading(true);
+            hideError();
+            try {
+                const response = await fetch("/init", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" }
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.error || "Failed to fetch initial greeting.");
+                }
+
+                const data = await response.json();
+                const history = Array.isArray(data.history) ? data.history : [];
+
+                if (history.length) {
+                    history.forEach((item) => {
+                        const role = item.role === "user" ? "You" : "Agent";
+                        const type = item.role === "user" ? "user" : "bot";
+                        const msg = formatMessage(role, item.message, type);
+                        chatEl.appendChild(msg);
+                    });
+                } else if (data.cleared) {
+                    const botMsg = formatMessage("Agent", "Welcome back! How can I help you today?", "bot");
+                    chatEl.appendChild(botMsg);
+                } else {
+                    const greeting = data.response || "Hello! How can I help you today?";
+                    const botMsg = formatMessage("Agent", greeting, "bot");
+                    chatEl.appendChild(botMsg);
+                }
+            } catch (error) {
+                showError(error.message);
+                const botMsg = formatMessage("Agent", "Hi there — unable to load greeting. Please refresh or try again.", "bot");
+                chatEl.appendChild(botMsg);
+            } finally {
+                setLoading(false);
+                scrollToBottom();
+                inputEl.focus();
+            }
+        }
+
+        async function send() {
+            hideError();
+            const message = inputEl.value.trim();
+            if (!message) {
+                inputEl.focus();
+                return;
+            }
+
+            const userMsg = formatMessage("You", message, "user");
+            chatEl.appendChild(userMsg);
+            scrollToBottom();
+            inputEl.value = "";
+            setLoading(true);
+
+            showTypingBubble();
+
+            try {
+                const response = await fetch("/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message })
+                });
+
+                removeTypingBubble();
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.error || "Failed to fetch response.");
+                }
+
+                const data = await response.json();
+                const reply = data.response || "No response returned.";
+                const botMsg = formatMessage("Agent", reply, "bot");
+                chatEl.appendChild(botMsg);
+            } catch (error) {
+                removeTypingBubble();
+                showError(error.message);
+                const botMsg = formatMessage("Agent", "Sorry, something went wrong. Please try again.", "bot");
+                chatEl.appendChild(botMsg);
+            } finally {
+                setLoading(false);
+                scrollToBottom();
+                inputEl.focus();
+            }
+        }
+
+
+        sendButton.addEventListener("click", send);
+        clearButton.addEventListener("click", clearChat);
+        inputEl.addEventListener("keydown", (event) => {
+            if (event.key === "Enter" && !event.shiftKey) {
+                event.preventDefault();
+                send();
+            }
+        });
+
+        document.addEventListener("DOMContentLoaded", () => {
+            inputEl.focus();
+            initializeAssistant();
+        });
+    </script>
+</body>
+</html>
