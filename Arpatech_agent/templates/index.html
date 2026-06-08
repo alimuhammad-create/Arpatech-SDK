@@ -35,30 +35,54 @@
             padding: 24px;
         }
         .container {
-            width: min(1120px, 100%);
+            width: min(390px, 100%);
             display: grid;
             gap: 24px;
         }
         .card {
-            background: var(--surface);
+            background: #f8f8f8;
             border: 1px solid var(--border);
             border-radius: 28px;
             box-shadow: 0 22px 60px rgba(35, 57, 41, 0.12);
             overflow: hidden;
+            width: 100%;
+            min-width: 460px;
         }
         .header {
-            padding: 32px 32px 20px;
+            background: #333;
+            padding: 20px;
             display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 16px;
+            /* justify-content: space-between; */
+            align-items: center;
+            gap: 8px;
             flex-wrap: wrap;
+        }
+        img.back-home {
+            width: 20px;
+        }
+        .chatbot-header-icon img.welcome-image {
+            background: #BACE34;
+            border-radius: 50px;
+            padding: 10px;
+            width: 45px;
+            margin: 0 auto;
+            display: block;
+        }
+        .right-side-icons {
+            display: block;
+            text-align: right;
+            width: 150px;
+        }
+        .right-side-icons a img {
+            width: 16px;
+            margin-left: 5px;
         }
         .title {
             margin: 0;
-            font-size: clamp(2rem, 3vw, 2.8rem);
+            font-size: 14px;
+            font-weight: 600;
             line-height: 1.05;
-            color: var(--accent-strong);
+            color: #fff;
         }
         .subtitle {
             margin: 14px 0 0;
@@ -81,6 +105,69 @@
             display: grid;
             grid-template-rows: 1fr auto;
             min-height: 560px;
+            padding: 24px;
+        }
+        #welcomeFrame {
+            padding: 10px;
+        }
+        img.welcome-image {
+            background: #BACE34;
+            border-radius: 50px;
+            padding: 10px;
+            width: 60px;
+            margin: 0 auto 12px;
+            display: block;
+        }
+        #welcomeFrame h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+            text-align: center;
+            margin: 0;
+        }
+        #welcomeFrame p {
+            font-size: 14px;
+            color: #333333B3;
+            text-align: center;
+            margin-top: 12px;
+        }
+        #welcomeFrame ul {
+            margin-top: 12px;
+            padding: 0;
+        }
+        #welcomeFrame ul li {
+            font-size: 14px;
+            color: #333333CC;
+            line-height: 25px;
+            list-style: none;
+        }
+        .assist-btns a {
+            display: flex;
+            border: 1px solid #E5E7EB;
+            background: #fff;
+            border-radius: 16px;
+            padding: 16px;
+            align-items: center;
+            gap: 16px;
+            text-decoration: none;
+            color: #333;
+            font-size: 16px;
+            font-weight: 500;
+            margin-top: 12px;
+        }
+        .assist-btns img {
+            width: 46px;
+            background: #F8F9F4;
+            border-radius: 14px;
+            padding: 10px;
+        }
+        .assist-btns a:hover {
+            box-shadow: 0 4px 6px -1px #0000001a,
+            0 2px 4px -2px #0000001a;
+            border-color: #bace34;
+        }
+        .assist-btns a:hover img {
+            background: #bace34;
         }
         .chat-window {
             padding: 24px;
@@ -93,7 +180,7 @@
             border-radius: 24px;
         }
         .message {
-            max-width: 76%;
+            max-width: 90%;
             margin-bottom: 18px;
             padding: 18px 20px;
             border-radius: 24px;
@@ -115,6 +202,7 @@
             border-top-left-radius: 6px;
             color: #0f2415;
             border: 1px solid rgba(31, 47, 33, 0.08);
+            max-width: 95%;
         }
         .author {
             display: block;
@@ -292,7 +380,6 @@
         }
         .markdown-content p {
             margin: 8px 0;
-            text-align: justify;
         }
         .markdown-content ul,
         .markdown-content ol {
@@ -339,9 +426,43 @@
         .markdown-content a:hover {
             border-bottom-color: var(--accent);
         }
+        #chatLauncher {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            width: 50px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 9999;
+            box-shadow: 0 4px 15px rgba(0,0,0,.25);
+        }
+
+        #chatLauncher img {
+            width: 120px;
+        }
+
+        .chat-container-main {
+            display:none;
+        }
+        .welcome-input-panel{
+            margin-top:20px;
+        }
+
+        .welcome-input-panel .form-row{
+            display:flex;
+            gap:10px;
+        }
+
+        .welcome-input-panel .input-field{
+            flex:1;
+        }
         @media (max-width: 760px) {
             .header {
-                padding: 24px 20px 18px;
+                padding: 20px;
             }
             .chat-window {
                 padding: 18px;
@@ -350,26 +471,96 @@
                 padding: 18px 20px 20px;
             }
         }
+        @media (max-width: 430px){
+            .right-side-icons {
+                /* width: auto; */
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
+    <!-- Floating Chat Button -->
+    <div id="chatLauncher">
+        <img src="{{ url_for('static', filename='launcher-btn.png') }}" alt="Open Chat">
+    </div>
+    <div class="container chat-container-main">
         <section class="card">
             <div class="header">
-                <div>
+                <div class="back-to-home">
+                    <a href="#" id="backHome" style="display:none;">
+                        <img src="{{ url_for('static', filename='back-home.png') }}" alt="Back to Home" class="back-home" />
+                    </a>
+                </div>
+                <div class="chatbot-header-icon">
+                    <img src="{{ url_for('static', filename='welcome-icon.png') }}" alt="Welcome" class="welcome-image" />
+                </div>
+                <div class="chatbot-header-inner">
                     <h1 class="title">Arpatech Virtual Assistant</h1>
+                </div>
+                <div class="right-side-icons">
+                    <a href="#" id="minimize"><img src="{{ url_for('static', filename='minus-icon.png') }}" alt="Minimize" /></a>
+                    <a href="#" id="close"><img src="{{ url_for('static', filename='cross-icon.png') }}" alt="Close" /></a>
                 </div>
             </div>
             <div class="chat-frame">
-                <div id="chat" class="chat-window" aria-live="polite" aria-label="Chat history"></div>
-                <div class="input-panel">
-                    <div class="error-banner" id="errorBanner" role="alert"></div>
-                    <div class="form-row">
-                        <input id="input" class="input-field" type="text" autocomplete="off" placeholder="Type your message here..." />
-                        <button id="sendButton" class="button primary" type="button">Send</button>
+                <div id="welcomeFrame">
+                    <img src="{{ url_for('static', filename='welcome-icon.png') }}" alt="Welcome" class="welcome-image" />
+                    <h2>Welcome to Arpatech 👋</h2>
+                    <p>I'm your virtual assistant.</p>
+                    <p>I can help you with:</p>
+
+                    <ul>
+                        <li>• Services Information</li>
+                        <li>• Technical Support</li>
+                        <li>• Contact Our Team</li>
+                        <li>• General Inquiries</li>
+                    </ul>
+                    
+                    <div class="assist-btns">
+                        <a href="#" id="services">
+                            <img src="{{ url_for('static', filename='services-icon.png') }}" alt="Our Services" /> Our Services
+                        </a>
+                        <a href="#" id="contactUs">
+                            <img src="{{ url_for('static', filename='contact-icon.png') }}" alt="Welcome" /> Contact Us
+                        </a>
+                        <a href="#" id="support">
+                            <img src="{{ url_for('static', filename='support-icon.png') }}" alt="Welcome" /> Support
+                        </a>
+                        <a href="#" id="talkToSales">
+                            <img src="{{ url_for('static', filename='talk-to-sales-icon.png') }}" alt="Welcome" /> Talk to Sales
+                        </a>
                     </div>
-                    <div class="action-group">
-                        <button id="clearButton" class="button secondary" type="button">Clear Chat</button>
+
+                    <!-- Direct Chat Input -->
+                    <div class="welcome-input-panel">
+                        <div class="form-row">
+                            <input
+                                id="welcomeInput"
+                                class="input-field"
+                                type="text"
+                                placeholder="Type your message here..."
+                            />
+                            <button
+                                id="welcomeSendButton"
+                                class="button primary"
+                                type="button"
+                            >
+                                Send
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div id="chatPanel" style="display:none;">
+                    <div id="chat" class="chat-window" aria-live="polite" aria-label="Chat history"></div>
+                    <div class="input-panel">
+                        <div class="error-banner" id="errorBanner" role="alert"></div>
+                        <div class="form-row">
+                            <input id="input" class="input-field" type="text" autocomplete="off" placeholder="Type your message here..." />
+                            <button id="sendButton" class="button primary" type="button">Send</button>
+                        </div>
+                        <div class="action-group">
+                            <button id="clearButton" class="button secondary" type="button">Clear Chat</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -377,11 +568,19 @@
     </div>
 
     <script>
+        let chatAlreadyOpened = sessionStorage.getItem("chatOpened") === "true";
+        let waitingForEmail = false;
+        let waitingForPhone = false;
         const chatEl = document.getElementById("chat");
         const inputEl = document.getElementById("input");
         const sendButton = document.getElementById("sendButton");
         const clearButton = document.getElementById("clearButton");
         const errorBanner = document.getElementById("errorBanner");
+        const backHome = document.getElementById("backHome");
+        const container = document.querySelector(".chat-container-main");
+        const chatLauncher = document.getElementById("chatLauncher");
+        const closeBtn = document.getElementById("close");
+        const minimizeBtn = document.getElementById("minimize");
 
         let currentTypingBubble = null;
 
@@ -507,7 +706,10 @@
                 }
 
                 chatEl.innerHTML = "";
-                const botMsg = formatMessage("Agent", "Welcome back! How can I help you today?", "bot");
+                if (chatEl.innerHTML.trim() === "") {
+                    const botMsg = formatMessage("Agent", "Welcome back! How can I help you today?", "bot");
+                    chatEl.appendChild(botMsg);
+                }
                 chatEl.appendChild(botMsg);
             } catch (error) {
                 showError(error.message);
@@ -569,6 +771,93 @@
                 return;
             }
 
+            //Email Validation
+            if (waitingForEmail) {
+                const emailRegex =
+                    /^[A-Za-z0-9][A-Za-z0-9._%+-]*@[A-Za-z0-9][A-Za-z0-9.-]*\.[A-Za-z]{2,}$/;
+                if (!emailRegex.test(message)) {
+                    const botMsg = formatMessage(
+                        "Agent",
+                        "Please enter a valid email address.",
+                        "bot"
+                    );
+                    chatEl.appendChild(botMsg);
+                    scrollToBottom();
+                    inputEl.focus();
+                    return;
+                }
+            }
+
+            //Phone Number Validation
+            if (waitingForPhone) {
+                if (!/^[0-9+-]+$/.test(message)) {
+                    const botMsg = formatMessage(
+                        "Agent",
+                        "Please enter a valid mobile number.",
+                        "bot"
+                    );
+                    chatEl.appendChild(botMsg);
+                    scrollToBottom();
+                    inputEl.focus();
+                    return;
+                }
+
+                // Count only digits
+                const digitCount = message.replace(/\D/g, "").length;
+                if (digitCount < 11) {
+                    const botMsg = formatMessage(
+                        "Agent",
+                        "Please enter a valid mobile number with at least 11 digits.",
+                        "bot"
+                    );
+                    chatEl.appendChild(botMsg);
+                    scrollToBottom();
+                    inputEl.focus();
+                    return;
+                }
+            }
+            inputEl.addEventListener("input", function () {
+                if (!waitingForPhone) return;
+
+                let value = this.value;
+
+                // Step 1: allow only digits and +
+                value = value.replace(/[^0-9+]/g, "");
+
+                // Step 2: keep only ONE +
+                const hasPlus = value.includes("+");
+
+                if (hasPlus) {
+                    // remove all +
+                    value = value.replace(/\+/g, "");
+
+                    // add + back ONLY at start
+                    value = "+" + value;
+                }
+
+                // Step 3: if user tries to put + anywhere else → auto remove
+                if (value.indexOf("+") > 0) {
+                    value = value.replace(/\+/g, "");
+                }
+
+                this.value = value;
+            });
+
+            // Client-side email validation: if input looks like an email but is invalid,
+            // prompt the user immediately without sending to the server.
+            const emailLike = message.includes("@") && message.length <= 254;
+            const emailRegex = /^[A-Za-z0-9][A-Za-z0-9._%+-]*@[A-Za-z0-9][A-Za-z0-9.-]*\.[A-Za-z]{2,}$/;
+            if (emailLike && !emailRegex.test(message)) {
+                const userMsg = formatMessage("You", message, "user");
+                chatEl.appendChild(userMsg);
+                const botMsg = formatMessage("Agent", "Please enter a valid email.", "bot");
+                chatEl.appendChild(botMsg);
+                inputEl.value = "";
+                scrollToBottom();
+                inputEl.focus();
+                return;
+            }
+
             const userMsg = formatMessage("You", message, "user");
             chatEl.appendChild(userMsg);
             scrollToBottom();
@@ -593,8 +882,37 @@
 
                 const data = await response.json();
                 const reply = data.response || "No response returned.";
+
+                //For Email and Phone Number Validation
+                const lowerReply = reply.toLowerCase();
+
+                if (
+                    lowerReply.includes("please enter your email") ||
+                    lowerReply.includes("please enter your email address")
+                ) {
+                    waitingForEmail = true;
+                } else {
+                    waitingForEmail = false;
+                }
+
+                if (
+                    lowerReply.includes("please enter your mobile number") ||
+                    lowerReply.includes("please enter your phone number") ||
+                    lowerReply.includes("enter your contact number")
+                ) {
+                    waitingForPhone = true;
+                } else {
+                    waitingForPhone = false;
+                }
+
                 const botMsg = formatMessage("Agent", reply, "bot");
+
+                const messageTop = chatEl.scrollHeight;
+
                 chatEl.appendChild(botMsg);
+
+                // Message ki shuru ki 2-3 lines nazar aayengi
+                chatEl.scrollTop = messageTop - chatEl.clientHeight + 90;
             } catch (error) {
                 removeTypingBubble();
                 showError(error.message);
@@ -602,11 +920,10 @@
                 chatEl.appendChild(botMsg);
             } finally {
                 setLoading(false);
-                scrollToBottom();
+                // scrollToBottom();
                 inputEl.focus();
             }
         }
-
 
         sendButton.addEventListener("click", send);
         clearButton.addEventListener("click", clearChat);
@@ -619,8 +936,136 @@
 
         document.addEventListener("DOMContentLoaded", () => {
             inputEl.focus();
-            initializeAssistant();
+            // initializeAssistant();
         });
+
+    //NEW JS
+    document.addEventListener("DOMContentLoaded", function () {
+        let initialized = false;
+
+        const welcomeInput = document.getElementById("welcomeInput");
+        const welcomeSendButton = document.getElementById("welcomeSendButton");
+
+        async function sendFromWelcome() {
+            const message = welcomeInput.value.trim();
+
+            if (!message) return;
+
+            welcomeFrame.style.display = "none";
+            chatPanel.style.display = "block";
+            backHome.style.display = "inline-flex";
+            inputEl.value = message;
+            welcomeInput.value = "";
+
+            await send();
+        }
+
+        welcomeSendButton.addEventListener("click", sendFromWelcome);
+
+        welcomeInput.addEventListener("keydown", async function(e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                await sendFromWelcome();
+            }
+        });
+
+        chatLauncher.addEventListener("click", async function(e){
+            e.preventDefault();
+
+            container.style.display = "block";
+            chatLauncher.style.display = "none";
+
+            if(!chatAlreadyOpened){
+                await initializeAssistant();
+                chatAlreadyOpened = true;
+                sessionStorage.setItem("chatOpened", "true");
+            }
+
+            if(!initialized){
+                await initializeAssistant();
+                initialized = true;
+            }
+        });
+
+        closeBtn.addEventListener("click", async function(e){
+            e.preventDefault();
+
+            try{
+                await clearChat();
+            }catch(err){
+                console.log(err);
+            }
+
+            // Reset UI
+            chatPanel.style.display = "none";
+            welcomeFrame.style.display = "block";
+            backHome.style.display = "none";
+            container.style.display = "none";
+            chatLauncher.style.display = "flex";
+            chatEl.innerHTML = "";
+
+            initialized = false;
+        });
+
+        minimizeBtn.addEventListener("click", function(e){
+            e.preventDefault();
+            container.style.display = "none";
+            chatLauncher.style.display = "flex";
+        });
+
+        const welcomeFrame = document.getElementById("welcomeFrame");
+        const chatPanel = document.getElementById("chatPanel");
+        // Initial state
+        welcomeFrame.style.display = "block";
+        chatPanel.style.display = "none";
+        async function openChat(message) {
+            // Hide welcome screen
+            welcomeFrame.style.display = "none";
+            // Show chat panel
+            chatPanel.style.display = "block";
+            backHome.style.display = "inline-flex";
+            // Put message in input
+            inputEl.value = message;
+            // Send using existing function
+            await send();
+        }
+
+        backHome.addEventListener("click", async function(e){
+            e.preventDefault();
+
+            // Chat reset
+            await clearChat();
+
+            // Chat panel hide
+            chatPanel.style.display = "none";
+
+            // Welcome screen show
+            welcomeFrame.style.display = "block";
+
+            // Home button hide
+            backHome.style.display = "none";
+
+            // Agar assistant dobara initialize karwana hai
+            initialized = false;
+        });
+
+        const actions = {
+            services: "What services does Arpatech provide?",
+            contactUs: "Contact Us",
+            support: "Connect me with someone at Arpatech",
+            talkToSales: "Connect me with someone from the sales team at Arpatech"
+        };
+
+        Object.keys(actions).forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.addEventListener("click", async function (e) {
+                    e.preventDefault();
+                    await openChat(actions[id]);
+                });
+            }
+        });
+    });
     </script>
 </body>
 </html>
