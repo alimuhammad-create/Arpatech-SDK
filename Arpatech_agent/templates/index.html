@@ -707,7 +707,7 @@
 
                 chatEl.innerHTML = "";
                 if (chatEl.innerHTML.trim() === "") {
-                    const botMsg = formatMessage("Agent", "Welcome back! How can I help you today?", "bot");
+                    const botMsg = formatMessage("Agent", "Hello, I'm Arpatech’s virtual assistant. Ask me anything about our services — I’m here to help!", "bot");
                     chatEl.appendChild(botMsg);
                 }
                 chatEl.appendChild(botMsg);
@@ -745,7 +745,7 @@
                         chatEl.appendChild(msg);
                     });
                 } else if (data.cleared) {
-                    const botMsg = formatMessage("Agent", "Welcome back! How can I help you today?", "bot");
+                    const botMsg = formatMessage("Agent", "Hello, I'm Arpatech’s virtual assistant. Ask me anything about our services — I’m here to help!", "bot");
                     chatEl.appendChild(botMsg);
                 } else {
                     const greeting = data.response || "Hello! How can I help you today?";
